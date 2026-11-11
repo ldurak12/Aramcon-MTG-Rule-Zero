@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rule Zero Map · Aramcon MTG</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--fg:#1d1b18;--mut:#6b665e;--line:#d9d4c8;--acc:#7a4bd1;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16151a;--card:#1f1e25;--fg:#efece6;--mut:#a29d93;--line:#36343d;--acc:#b794f6}}
+:root[data-theme="dark"]{--bg:#16151a;--card:#1f1e25;--fg:#efece6;--mut:#a29d93;--line:#36343d;--acc:#b794f6}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--mut);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.card h2{font-size:1.05rem;margin:0 0 6px}
+.card ul{margin:6px 0 10px;padding-left:20px}
+a{color:var(--acc)}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:860px){.grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}}
+.chartbox{display:grid;grid-template-columns:28px 1fr;grid-template-rows:1fr auto;gap:6px}
+.ylab,.xlab{color:var(--mut);font-size:.72rem;display:flex;justify-content:space-between;text-transform:uppercase;letter-spacing:.06em}
+.ylab{writing-mode:vertical-rl;transform:rotate(180deg);grid-row:1;text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.xw{grid-column:2}
+.xt{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;align-items:start;font-size:.62rem;line-height:1.25;text-align:center;color:var(--mut)}
+.xt b{display:block;color:var(--fg);font-size:.68rem;margin-bottom:1px}
+.xc{text-align:center;font-size:.8rem;letter-spacing:.02em;color:var(--mut);margin-top:6px}
+@media(min-width:640px){.xt{font-size:.74rem}.xt b{font-size:.8rem}}
+.chart{position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/25% 25%,linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/25% 25%,var(--card)}
+.diag{position:absolute;inset:0;pointer-events:none}
+.reg{position:absolute;transform:translate(-50%,50%);border:0;border-radius:50%;cursor:pointer;color:var(--fg);
+font:600 clamp(.6rem,1.9vw,.8rem)/1.15 system-ui,sans-serif;padding:0;text-align:center;
+background:radial-gradient(closest-side,hsl(var(--h) 75% 55% / .55),hsl(var(--h) 75% 55% / .28) 60%,hsl(var(--h) 75% 55% / 0));
+transition:transform .15s}
+.reg span{display:block;max-width:70%;margin:0 auto;text-shadow:0 0 6px var(--card),0 0 3px var(--card)}
+.reg:hover,.reg:focus-visible{transform:translate(-50%,50%) scale(1.07);outline:none}
+.reg:focus-visible span{text-decoration:underline}
+.marker{position:absolute;width:28%;height:28%;border-radius:50%;background:color-mix(in srgb,var(--fg) 10%,transparent);border:2px dashed var(--fg);transform:translate(-50%,50%);pointer-events:none;transition:left .25s,bottom .25s}
+.marker::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--fg);border:2px solid var(--card)}
+.hint{color:var(--mut);font-size:.85rem;margin:8px 0 0}
+label{display:block;font-size:.88rem;margin:10px 0 2px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.rng{display:flex;justify-content:space-between;font-size:.72rem;color:var(--mut)}
+.res{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.chip{display:inline-block;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:3px 11px;margin:3px 4px 3px 0;font:inherit;font-size:.85rem;cursor:pointer}
+.chip:hover{border-color:var(--acc)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.ov.on{display:flex}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:20px 22px;position:relative;border-top:6px solid hsl(var(--h) 75% 55%)}
+.modal h3{margin:0;font-size:1.3rem}
+.tag{color:var(--mut);margin:2px 0 10px;font-style:italic}
+.modal h4{margin:14px 0 2px;font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+.modal p,.modal ul{margin:2px 0}
+.modal ul{padding-left:20px}
+.x{position:absolute;top:8px;right:10px;background:none;border:0;color:var(--fg);font-size:1.6rem;cursor:pointer;line-height:1}
+.say{background:var(--bg);border-left:3px solid var(--acc);padding:8px 12px;border-radius:6px;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Rule Zero Map</h1>
+<p class="sub">Aramcon MTG · a two-axis conversation tool for Commander pods</p>
+
+<div class="card">
+<h2>Why not just use brackets?</h2>
+<p>The official <a href="https://magic.wizards.com/en/news/announcements/introducing-commander-brackets-beta" target="_blank" rel="noopener">Commander Brackets</a> are a great starting point. They give everyone shared vocabulary for a deck’s power. But they rate the <em>deck</em> on one scale, and that creates blind spots:</p>
+<ul>
+<li><strong>Play experience gets folded into power.</strong> A fragile, all-in Bracket 4 deck in the hands of a newer player plays nothing like an optimized one piloted by a veteran, yet both wear the same number.</li>
+<li><strong>Some decks don’t fit anywhere.</strong> Jank piles stuffed with Game Changers, and tuned low-power decks run by sharp pilots, fall through the cracks.</li>
+<li><strong>Brackets are a checklist, not a feel.</strong> Counting cards doesn’t tell the table how fast, how interactive, or how serious a game will be.</li>
+</ul>
+<p><strong>Our thesis:</strong> power and play experience are strongly <em>correlated</em>, but one doesn’t cause the other. So we ask two questions instead of one. Tap any glowing region below.</p>
+</div>
+
+<div class="grid">
+<div>
+<div class="chartbox">
+<div class="ylab"><span>Casual</span><b>Play experience</b><span>Competitive</span></div>
+<div class="chart" id="chart">
+<svg class="diag" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="0" y1="100" x2="100" y2="0" stroke="currentColor" stroke-opacity=".25" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/></svg>
+<div class="marker" id="marker" style="left:50%;bottom:50%"></div>
+</div>
+<div></div>
+<div class="xw"><div class="xt"><div>We’ll experience the heat death of the universe before this deck wins</div><div>10+ turns</div><div>6+ turns</div><div>4+ turns</div><div>Turn 0 sushi hulk</div></div><div class="xc">Deck power · Expected turns to win</div></div>
+</div>
+<p class="hint">Dashed line = the “traditional” bracket diagonal. Regions overlap on purpose: most decks live in the blur between them. The dashed circle is your deck’s comfort zone: any region it touches is a fair place to play it.</p>
+</div>
+
+<div>
+<div class="card">
+<h2>Where does my deck sit?</h2>
+<label for="px">Deck power</label>
+<input type="range" id="px" min="0" max="100" value="50">
+<div class="rng"><span>Low</span><span>High</span></div>
+<label for="py">Table mindset / pilot</label>
+<input type="range" id="py" min="0" max="100" value="50">
+<div class="rng"><span>Casual, here to hang out</span><span>Here to win</span></div>
+<div class="res" id="res"></div>
+</div>
+<div class="card">
+<h2>Using it at the table</h2>
+<ul>
+<li>Each person places their deck <em>and</em> their mood tonight on the map.</li>
+<li>If everyone lands in the same region or neighbors, play.</li>
+<li>If not, talk it through and adjust the games to fit.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="mt">
+<div class="modal" id="modal">
+<button class="x" id="close" aria-label="Close">×</button>
+<div id="mbody"></div>
+</div>
+</div>
+
+<script>
+var R=[
+{id:"b1",name:"Bracket 1 · Exhibition",x:12,y:14,w:56,h:56,hue:150,
+tag:"Theme over everything. Winning is optional.",
+feel:"Slow, silly, story-driven games. Expect big board states, weird interactions and plenty of turns where nothing relevant happens. Nobody is trying to close out the game quickly.",
+decks:["Precon-level or below, joke commanders, heavy-theme tribal, pet-card piles","Few or no tutors, no Game Changers, no combos that end the game"],
+say:"“I’m here to play my weird cards and chat. Please don’t take it personally if my deck does nothing.”",
+blend:["b2","glass"]},
+{id:"b2",name:"Bracket 2 · Core",x:30,y:32,w:60,h:60,hue:95,
+tag:"The everyday kitchen-table game.",
+feel:"Games last until turn 8 to 12 and end on the board, not on a combo. Interaction exists but is light. Decks do what they say on the tin, with a plan and a few good surprises.",
+decks:["Upgraded precons, typical casual decks","Light on tutors and extra turns, no early combos"],
+say:"“My deck has a plan, but it’s not trying to win before turn eight.”",
+blend:["b1","b3","sharp","glass"]},
+{id:"b3",name:"Bracket 3 · Upgraded",x:50,y:50,w:60,h:60,hue:50,
+tag:"Strong decks, still a fair fight.",
+feel:"Faster, more synergistic and more interactive. A few Game Changers, some tutors and a possible late-game combo. You expect removal and counterspells, and games end around turn 6 to 9.",
+decks:["Well-tuned decks with strong commanders, a handful of Game Changers","Combos exist but show up late and are answerable"],
+say:"“Mine is tuned and may win in the mid-game. I’ll hold back if the table seems slower.”",
+blend:["b2","b4","sharp","glass"]},
+{id:"b4",name:"Bracket 4 · Optimized",x:70,y:68,w:60,h:60,hue:25,
+tag:"High power, high consistency, but not metagame-tight.",
+feel:"Fast, efficient games with real stack interaction. Expect tutors, free spells, fast mana and early wins. Games can end on turn 4 to 6 and mistakes get punished.",
+decks:["Optimized lists with many Game Changers, tutors and compact combos","Pilots who know their lines cold"],
+say:"“It’s a fast deck, and I’m going to try to win. Is this table up for that tonight?”",
+blend:["b3","cedh","glass","sharp"]},
+{id:"cedh",name:"cEDH",x:86,y:86,w:46,h:46,hue:350,
+tag:"Competitive Commander. The meta is the point.",
+feel:"Turn 2 to 4 wins, constant interaction, mulligan decisions that matter and a lot of tight play. Everyone present is here for this and knows it.",
+decks:["Tournament-tuned lists built around the cEDH metagame","Pilots who’ve practiced and know every card"],
+say:"“This is cEDH. We’re all here to play to win with maximum efficiency, right?”",
+blend:["b4"]},
+{id:"glass",name:"Glass Cannons & “Bad 4s”",x:78,y:20,w:62,h:54,hue:285,
+tag:"Powerful on paper. Casual in practice.",
+feel:"The deck might score a Bracket 4 by the numbers, but the games feel like Bracket 2 or 3. The deck is clunky, easily disrupted or piloted by someone still learning it, so it rarely ends the game quickly or unfairly. These decks can happily sit in a Bracket 3 pod.",
+decks:["Strong decks played by an inexperienced or learning pilot","Meme or pile decks with more than four Game Changers that don’t actually win quickly","Glass-cannon combos that fold to one removal spell or a counterspell"],
+say:"“By the bracket rules this is a 4, but it’s a clunky deck and I’m still learning it. Fine with a 3 pod?”",
+blend:["b3","b4","b2"]},
+{id:"sharp",name:"Sharp Pilot, Soft Deck",x:22,y:80,w:60,h:54,hue:200,
+tag:"Low power cards. Full-power focus.",
+feel:"The cards are modest, but the person holding them plays tight, tracks everything and takes politics seriously. These games can feel more intense than a low bracket suggests, and a casual table can be caught off guard.",
+decks:["Technically Bracket 2 or 3 tournament-style decks, tuned for tight play","Casual decks piloted by experienced or spikey players","Cheap but ruthless lists, such as stax-lite and prison-lite"],
+say:"“My cards are weak but I’ll play every turn to win. Is that okay, or should I ease up tonight?”",
+blend:["b2","b3","b1"]}
+];
+var by={};R.forEach(function(r){by[r.id]=r});
+var chart=document.getElementById("chart");
+R.forEach(function(r){
+var b=document.createElement("button");
+b.className="reg";b.style.cssText="--h:"+r.hue+";left:"+r.x+"%;bottom:"+r.y+"%;width:"+r.w+"%;height:"+r.h+"%";
+b.innerHTML="<span>"+r.name.replace(" · ","<br>")+"</span>";
+b.setAttribute("aria-label",r.name+": open details");
+b.onclick=function(){openR(r.id)};
+chart.insertBefore(b,document.getElementById("marker"));
+});
+var ov=document.getElementById("ov"),mb=document.getElementById("mbody"),modal=document.getElementById("modal");
+function openR(id){
+var r=by[id];
+modal.style.setProperty("--h",r.hue);
+mb.innerHTML="<h3 id='mt'>"+r.name+"</h3><p class='tag'>"+r.tag+"</p>"
++"<h4>What a game feels like</h4><p>"+r.feel+"</p>"
++"<h4>Typical decks</h4><ul>"+r.decks.map(function(d){return"<li>"+d+"</li>"}).join("")+"</ul>"
+
++"<h4>Blends into</h4><div>"+r.blend.map(function(i){return"<button class='chip' data-id='"+i+"'>"+by[i].name+"</button>"}).join("")+"</div>";
+mb.querySelectorAll(".chip").forEach(function(c){c.onclick=function(){openR(c.dataset.id)}});
+ov.classList.add("on");document.getElementById("close").focus();
+}
+function closeR(){ov.classList.remove("on")}
+document.getElementById("close").onclick=closeR;
+ov.onclick=function(e){if(e.target===ov)closeR()};
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeR()});
+var px=document.getElementById("px"),py=document.getElementById("py"),mk=document.getElementById("marker"),res=document.getElementById("res");
+function upd(){
+var x=+px.value,y=+py.value;
+mk.style.left=x+"%";mk.style.bottom=y+"%";
+var d=R.map(function(r){return{r:r,d:Math.hypot(r.x-x,r.y-y)/r.w}}).sort(function(a,b){return a.d-b.d});
+var a=d[0].r;
+var inside=d.filter(function(o,i){return i===0||Math.hypot(o.r.x-x,o.r.y-y)<14+o.r.w*0.35});
+var html="<strong>Closest to:</strong> <button class='chip' data-id='"+a.id+"'>"+a.name+"</button>";
+html+="<br><strong>Your circle covers, so it’s ok to play in:</strong><br>"+inside.map(function(o){return"<button class='chip' data-id='"+o.r.id+"'>"+o.r.name+"</button>"}).join("");
+res.innerHTML=html;
+res.querySelectorAll(".chip").forEach(function(c){c.onclick=function(){openR(c.dataset.id)}});
+}
+px.oninput=upd;py.oninput=upd;upd();
+</script>
+</body>
+</html>
